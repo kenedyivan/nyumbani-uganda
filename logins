@@ -1,0 +1,25 @@
+$findUser = Agent::where('email',$sociaUser->email)->first();
+if($findUser)
+{
+  auth::login($findUser);
+  flash('Agent Login successfully')->success();
+  return redirect()->intended(route('agent.profile'));
+}
+else {
+  $user = new Agent();
+
+  $names = $sociaUser->getName();
+  list($firstname, $lastname) = explode(' ', $names);
+
+  $user->first_name = trim($firstname);
+  $user->last_name = trim($lastname);
+  $user->username = $sociaUser->getNickname();
+  $user->email = $sociaUser->getEmail();
+  $user->user_type = 0;
+  $user->password = bcrypt(123456);
+  $user->save();
+
+  auth::login($user);
+  flash('Agent Login successfully')->success();
+  return redirect()->intended(route('agent.profile'));
+}
