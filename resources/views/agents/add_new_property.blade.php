@@ -28,7 +28,7 @@
             <div class="membership-content-area">
                 <div class="membership-content-area">
                     <form action="{{route('agent.create.listing.submit')}}" method="post"
-                          enctype="multipart/form-data">
+                          enctype="multipart/form-data" id="add-property-form">
                         <div class="account-block">
                             <div class="add-title-tab">
                                 <h3>Property description and price</h3>
@@ -113,20 +113,8 @@
                                 <div class="add-tab-row">
                                     <div class="property-media">
                                         <div class="media-gallery">
-                                            <div class="row" id="result">
-
-                                            </div>
+                                            <div id="my-awesome-dropzone" class="dropzone"></div>
                                         </div>
-                                        <style>
-                                            .gallery-thumb img {
-                                                height: 127px;
-                                            }
-                                        </style>
-                                        <label class="btn btn-primary btn-file">
-                                            Select Images <input id="files" name="photo" type="file" style="display: none;" multiple required>
-                                        </label>
-                                        <input id="arr" type="hidden"/>
-
                                     </div>
                                 </div>
                             </div>
@@ -281,7 +269,7 @@
                         </div>
                         <div class="account-block text-right">
                             <input type="hidden" id="token" name="_token" value="{{ csrf_token() }}">
-                            <button type="submit" class="btn btn-primary">Submit Property</button>
+                            <button type="submit" id="add-property" class="btn btn-primary">Submit Property</button>
                         </div>
                     </form>
             </div>

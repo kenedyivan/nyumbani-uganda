@@ -66,23 +66,6 @@ class AgentCreateListingsController extends Controller
         $longitude = $request->input('longitude');
 
 
-        if($request->hasFile('photo')){
-            $photoName = $request->input('title').'.'.$request->photo->extension();
-
-            $photoName = str_replace(' ', '_', $photoName);
-
-            if($path = $request->photo->move(public_path().'/cache_uploads/', $photoName)){
-
-                $image = $photoName;
-
-            }else{
-                return "file error";
-            }
-        }else{
-            return "No image picked";
-        }
-
-
         $property = array();
 
         $property['title'] = $title;
@@ -103,16 +86,18 @@ class AgentCreateListingsController extends Controller
         $property['garage'] = $garage;
         $property['year_built'] = $year_built;
         $property['last_remodel_year'] = $last_remodel_year;
-        $property['image'] = $image;
         $property['latitude'] = $latitude;
         $property['longitude'] = $longitude;
 
 
         Session::put('property',$property);
 
-        return redirect(route('agent.payment.form'));
+        $success = 1;
 
-        //dd($property);
+        $resp['success'] = $success;
+        $resp['data'] = json_encode($property);
+
+        return json_encode($resp);
 
 
     }
@@ -244,6 +229,40 @@ class AgentCreateListingsController extends Controller
         $property->last_remodel_year = $s_prop['last_remodel_year'];
         $property->latitude = $s_prop['latitude'];
         $property->longitude = $s_prop['longitude'];
+
+        $property->image = "no-image";
+
+        if($property->save()){
+
+            $cur_property = Property::find($property->id);
+
+            $images = Session::get('property_photos');
+
+            foreach ($images as $image){
+
+                $this->resize_image(public_path().'/cache_uploads/'.$image,$image);
+
+                $property_image = new PropertyImage(['image'=>$image]);
+
+                $cur_property->images()->save($property_image);
+
+                //execute to set main property image
+                if($cur_property->image == 'no-image'){
+                    $cur_property->image = $image;
+                    $cur_property->save();
+                }
+
+                //sleep(1);
+
+            }
+
+            flash('Property listing added successfully')->success();
+            return view('agents.agent_done_adding_package');
+
+        }else{
+            flash('Error adding property')->success();
+            return redirect(route('agent.create.listing'));
+        }
 
         $image_name = $s_prop['image'];
 
@@ -381,6 +400,78 @@ class AgentCreateListingsController extends Controller
 
         return json_encode($resp);
 
+    }
+
+    public function multi_upload_form(){
+        return view('agents.add_multi_images');
+    }
+
+    public function upld(Request $request){
+        $tempFile = $_FILES['photo']['tmp_name'];
+        $res = array();
+        $res["tempFile"] = $tempFile;
+        //echo json_encode($resp);
+
+
+
+        if (!empty($_FILES)) {
+
+            $file_names = array();
+            $i = 0;
+
+    	    $tempFile = $_FILES['photo']['tmp_name'];
+
+    	    foreach($tempFile as $key => $tmp_name)
+    			{
+    			    $file_name = $key.$_FILES['photo']['name'][$key];
+    			    $file_size =$_FILES['photo']['size'][$key];
+    			    $file_tmp =$_FILES['photo']['tmp_name'][$key];
+    			    $file_type=$_FILES['photo']['type'][$key];
+
+    			    $formatted_name = time().$file_name;
+
+    			    $file_names[$i] = $formatted_name;
+
+    			    move_uploaded_file($file_tmp,public_path().'/cache_uploads/'.$formatted_name);
+
+    			    $i++;
+    			}
+
+            Session::put('property_photos',$file_names);
+
+    	    $res['files'] = $file_names;
+
+    	    echo json_encode($res);       //3
+
+    	}
+    }
+    public function post_upload(){
+
+        $input = Input::all();
+        $rules = array(
+            'file' => 'image|max:3000',
+        );
+
+        $validation = Validator::make($input, $rules);
+
+        if ($validation->fails())
+        {
+            return Response::make($validation->errors->first(), 400);
+        }
+
+        $file = Input::file('file');
+
+        $extension = File::extension($file['name']);
+        $directory = path('public').'uploads/'.sha1(time());
+        $filename = sha1(time().time()).".{$extension}";
+
+        $upload_success = Input::upload('file', $directory, $filename);
+
+        if( $upload_success ) {
+            return Response::json('success', 200);
+        } else {
+            return Response::json('error', 400);
+        }
     }
 
 

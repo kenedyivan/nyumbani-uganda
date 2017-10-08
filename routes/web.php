@@ -2,6 +2,7 @@
 use App\Property;
 use Intervention\Image\Facades\Image;
 use App\Mail\PropertyCreated;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -408,4 +409,22 @@ Route::get('/send-m',function(){
 Route::get('/t',function(){
   //date_default_timezone_set("Africa/Kampala");
   return date("Y-m-d h:i:s");
+});
+
+
+//multiple file upload with dropzone routes
+Route::get('/multi-upload','Agent\AgentCreateListingsController@multi_upload_form')->name('post.upload.form');
+Route::post('/multi-upload','Agent\AgentCreateListingsController@post_upload')->name('post.upload');
+Route::post('/multi-upld','Agent\AgentCreateListingsController@upld')->name('post.upld');
+
+Route::post('/other-fileds',function(Request $request){
+    $fname = $request->input('firstname');
+    $lname = $request->input('lastname');
+
+    $resp = array();
+
+    $resp['fname'] = $fname;
+    $resp['lname'] = $lname;
+
+    echo json_encode($resp);
 });
