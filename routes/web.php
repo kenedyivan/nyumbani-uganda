@@ -356,6 +356,11 @@ Route::get('/agent/{id}/delete-property','Agent\AgentCreateListingsController@de
 Route::post('/agent/add-new-property','Agent\AgentCreateListingsController@createListing')->name('agent.create.listing.submit');
 Route::post('/agent/edit-property','Agent\AgentCreateListingsController@editListing')->name('agent.edit.listing.submit');
 Route::get('/agent/select-package','Agent\AgentCreateListingsController@showSelectPackage')->name('agent.select.package');
+
+/*delete property image*/
+Route::get('/delete-property-image','Agent\AgentCreateListingsController@deletePropertyImage')
+    ->name('delete.property.image');
+/*end of delete property image*/
 /* debug routes*/
 Route::get('/agent/package-testing','Agent\AgentCreateListingsController@showNewPropertyForm');
 Route::get('/agent/test','Agent\TController@test');

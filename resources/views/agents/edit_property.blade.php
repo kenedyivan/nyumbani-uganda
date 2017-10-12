@@ -1,8 +1,9 @@
 @extends('...layouts.user_layout')
 @section('title')
-  <title>e-NYUMBANI : Edit Property</title>
+    <title>e-NYUMBANI : Edit Property</title>
 @endsection
 @section('content')
+    @include('flash::message')
     <!--start section page body-->
     <section id="section-body">
         <div class="container">
@@ -18,7 +19,7 @@
             </div>
 
             <div class="membership-content-area">
-                <form action="{{route('agent.edit.listing.submit')}}" method="post" enctype="multipart/form-data">
+                <form id="edit-property-form" action="{{route('agent.edit.listing.submit')}}" method="post" enctype="multipart/form-data">
                     <div class="account-block">
                         <div class="add-title-tab">
                             <h3>Property description and price</h3>
@@ -30,15 +31,18 @@
                                     <div class="col-sm-12">
                                         <div class="form-group">
                                             <label for="property-title">Title</label>
-                                            <input class="form-control" id="property-title" name="title" value="{{$property->title}}" >
-                                            <input class="form-control" type="hidden" id="property-title" name="idproperty" value="{{$property->id}}" >
+                                            <input class="form-control" id="property-title" name="title"
+                                                   value="{{$property->title}}">
+                                            <input class="form-control" type="hidden" id="property-title"
+                                                   name="idproperty" value="{{$property->id}}">
                                         </div>
                                     </div>
                                     <div class="col-sm-12">
                                         <div class="form-group">
                                             <label for="description">Description</label>
                                             <textarea class="form-control" id="description" rows="6"
-                                                      name="description" placeholder="Enter your property title">{{$property->description}}</textarea>
+                                                      name="description"
+                                                      placeholder="Enter your property title">{{$property->description}}</textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -51,7 +55,8 @@
                                             <select class="selectpicker" id="property-type" data-live-search="false"
                                                     data-live-search-style="begins" title="Select" name="type">
                                                 @foreach($types as $type)
-                                                    <option value="{{$type->id}}" selected="selected">{{$type->name}}</option>
+                                                    <option value="{{$type->id}}"
+                                                            selected="selected">{{$type->name}}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -60,7 +65,8 @@
                                         <div class="form-group">
                                             <label for="property-sale_type">Sale type</label>
                                             <select class="selectpicker" id="property-sale_type"
-                                                    data-live-search="false" data-live-search-style="begins" title="Select" name="sale_type">
+                                                    data-live-search="false" data-live-search-style="begins"
+                                                    title="Select" name="sale_type">
                                                 <option value="for_sale" selected="selected">Sale</option>
                                                 <option value="for_rent">Rent</option>
                                             </select>
@@ -73,20 +79,59 @@
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="property-price">Property price</label>
-                                            <input class="form-control" id="property-price" name="price" value="{{$property->price}}">
+                                            <input class="form-control" id="property-price" name="price"
+                                                   value="{{$property->price}}">
                                         </div>
                                     </div>
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="property-price-before">Rent price</label>
-                                            <input class="form-control" id="property-price-before" name="price_per_month" value="{{$property->price_per_month}}">
+                                            <input class="form-control" id="property-price-before"
+                                                   name="price_per_month" value="{{$property->price_per_month}}">
                                         </div>
                                     </div>
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="property-price-after">Months forward</label>
-                                            <input class="form-control" id="property-price-after" name="forward_months" value="{{$property->forward}}">
+                                            <input class="form-control" id="property-price-after" name="forward_months"
+                                                   value="{{$property->forward}}">
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="account-block">
+                        <div class="add-title-tab">
+                            <h3>Property media</h3>
+                            <div class="add-expand"></div>
+                        </div>
+                        <div class="add-tab-content">
+                            <div class="add-tab-row">
+                                <div class="property-media">
+                                    <div class="media-gallery">
+                                        <div class="row">
+                                            @foreach($images as $image)
+                                                <div class="col-sm-2" id="col-{{$image->id}}">
+                                                    <figure class="gallery-thumb" id="fig-{{$image->id}}">
+                                                        <img src="/images/properties/our_location_370x370/{{$image->image}}" alt="thumb">
+                                                        <span class="icon icon-fav"><i class="fa fa-star-o"></i></span>
+                                                        <span id="img-{{$image->id}}" 
+                                                              class="icon icon-delete" 
+                                                              onclick="deletePropertyImage({{$property->id}},{{$image->id}});">
+                                                            <i class="fa fa-trash"></i>
+                                                        </span>
+                                                        <span class="icon icon-loader"><i class="fa fa-spinner fa-spin"></i></span>
+                                                    </figure>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    <div class="media-drag-drop">
+                                        <!--<h4><i class="fa fa-cloud-upload"></i> Drag and drop images here</h4>
+                                        <h4>or</h4>
+                                        <button class="btn btn-primary">Select Images</button>-->
+                                        <div id="edit-dropzone" class="dropzone"></div>
                                     </div>
                                 </div>
                             </div>
@@ -103,25 +148,29 @@
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="address">Address</label>
-                                            <input class="form-control" id="address" name="address" value="{{$property->address}}">
+                                            <input class="form-control" id="address" name="address"
+                                                   value="{{$property->address}}">
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="district">District</label>
-                                            <input class="form-control" id="district" name="district" value="{{$property->district}}">
+                                            <input class="form-control" id="district" name="district"
+                                                   value="{{$property->district}}">
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="town">Town</label>
-                                            <input class="form-control" id="town" name="town" value="{{$property->town}}">
+                                            <input class="form-control" id="town" name="town"
+                                                   value="{{$property->town}}">
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="region">Region</label>
-                                            <input class="form-control" id="region" name="region" value="{{$property->region}}">
+                                            <input class="form-control" id="region" name="region"
+                                                   value="{{$property->region}}">
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
@@ -134,7 +183,8 @@
                                         <div class="form-group">
                                             <label for="country">Country</label>
                                             <select class="selectpicker" id="country"
-                                                    name="country" data-live-search="false" data-live-search-style="begins" title="Select">
+                                                    name="country" data-live-search="false"
+                                                    data-live-search-style="begins" title="Select">
                                                 <option value="ug" selected="selected">Uganda</option>
                                                 <option value="ky">Kenya</option>
                                                 <option value="tz">Tanzania</option>
@@ -158,43 +208,50 @@
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="property-id">Property ID</label>
-                                            <input class="form-control" id="property-id" name="propertyId" value="{{$property->propertyID}}">
+                                            <input class="form-control" id="property-id" name="propertyId"
+                                                   value="{{$property->propertyID}}">
                                         </div>
                                     </div>
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="property-area">Area Size</label>
-                                            <input class="form-control" id="property-area" name="area_size" value="{{$property->area_size}}">
+                                            <input class="form-control" id="property-area" name="area_size"
+                                                   value="{{$property->area_size}}">
                                         </div>
                                     </div>
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="property-size-prefix">Size Prefix</label>
-                                            <input class="form-control" id="property-size-prefix" name="size_prefix" value="{{$property->size_prefix}}">
+                                            <input class="form-control" id="property-size-prefix" name="size_prefix"
+                                                   value="{{$property->size_prefix}}">
                                         </div>
                                     </div>
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="property-bedrooms">Bedrooms</label>
-                                            <input class="form-control" id="property-bedrooms" name="bedrooms" value="{{$property->bedrooms}}">
+                                            <input class="form-control" id="property-bedrooms" name="bedrooms"
+                                                   value="{{$property->bedrooms}}">
                                         </div>
                                     </div>
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="property-bathrooms">Bathrooms</label>
-                                            <input class="form-control" id="property-bathrooms" name="bathrooms" value="{{$property->bathrooms}}">
+                                            <input class="form-control" id="property-bathrooms" name="bathrooms"
+                                                   value="{{$property->bathrooms}}">
                                         </div>
                                     </div>
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="property-garage">Garage</label>
-                                            <input class="form-control" id="property-garage" name="garage" value="{{$property->garage}}">
+                                            <input class="form-control" id="property-garage" name="garage"
+                                                   value="{{$property->garage}}">
                                         </div>
                                     </div>
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="property-garage-size">Garages Size</label>
-                                            <input class="form-control" id="property-garage-size" name="garage_size" value="{{$property->garage_size}}">
+                                            <input class="form-control" id="property-garage-size" name="garage_size"
+                                                   value="{{$property->garage_size}}">
                                         </div>
                                     </div>
                                     <div class="col-sm-4">
@@ -210,7 +267,8 @@
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <label for="last_remodel_year">Last remodel year</label>
-                                            <input type="date" class="form-control" id="last_remodel_year" name="last_remodel_year" value="{{$property->last_remodel_year}}">
+                                            <input type="date" class="form-control" id="last_remodel_year"
+                                                   name="last_remodel_year" value="{{$property->last_remodel_year}}">
                                         </div>
                                     </div>
                                 </div>
@@ -241,11 +299,12 @@
                     </div>
                     <div class="account-block text-right">
                         <input type="hidden" id="token" name="_token" value="{{ csrf_token() }}">
-                        <button type="submit" class="btn btn-primary">Submit Property</button>
+                        <button id="edit-property" type="submit" class="btn btn-primary">Save changes</button>
                     </div>
                 </form>
             </div>
         </div>
     </section>
     <!--end section page body-->
+
 @endsection
