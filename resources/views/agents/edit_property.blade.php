@@ -10,8 +10,8 @@
                 <div class="row">
                     <div class="col-sm-12 col-xs-12">
                         <div class="membership-page-title">
-                            <h1 class="page-title"> Complete your order </h1>
-                            <p class="page-subtitle"> Please enter your Account and Billing information to complete your membership! </p>
+                            <h1 class="page-title"> Edit property </h1>
+                            <!--<p class="page-subtitle"> Please enter your Account and Billing information to complete your membership! </p>-->
                         </div>
                     </div>
                 </div>

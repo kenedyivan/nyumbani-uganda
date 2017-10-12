@@ -349,6 +349,10 @@ class AgentCreateListingsController extends Controller
             ->resize(150, 110)
             ->save(public_path() . '/images/properties/agent_properties_150x110/'.$photoName);
 
+        Image::make($image_path)
+            ->resize(120, 120)
+            ->save(public_path() . '/images/properties/agent_properties_120x120/'.$photoName);
+
 
         /*if (File::exists($image_path))
         {
